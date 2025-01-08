@@ -1,10 +1,35 @@
+x-postgres-common: &postgres-common
+  POSTGRES_DB: dev
+  POSTGRES_USER: dev
+  POSTGRES_PASSWORD: devpswd
+
 services:
   postgres:
+    container_name: postgres
     build: ./postgres
     environment:
-      - POSTGRES_DB=dev
-      - POSTGRES_USER=dev
-      - POSTGRES_PASSWORD=devpswd
+      << : *postgres-common
     ports:
-      - 5432:5431
-    restart: unless-stopped
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  gen_postgres:
+    build: ./gen/postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./gen/postgres:/app/src
+    environment:
+      << : *postgres-common
+      DB_HOST: postgres
+      DB_PORT: 5432
+      NUM_USERS: 100
+      NUM_PRODUCTS: 100
+      NUM_ORDERS: 100
+      NUM_ORDER_DETAILS: 300
+      NUM_CATEGORIES: 10
