@@ -1,0 +1,10 @@
+services:
+  postgres:
+    build: ./postgres
+    environment:
+      - POSTGRES_DB=dev
+      - POSTGRES_USER=dev
+      - POSTGRES_PASSWORD=devpswd
+    ports:
+      - 5432:5431
+    restart: unless-stopped
